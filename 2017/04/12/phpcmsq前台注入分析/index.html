@@ -73,16 +73,16 @@
 <meta name="keywords" content="web,php,代码审计">
 <meta property="og:type" content="article">
 <meta property="og:title" content="phpcms_v9.6.0前台注入分析">
-<meta property="og:url" content="http://yoursite.com/2017/09/23/phpcmsq前台注入分析/index.html">
+<meta property="og:url" content="http://yoursite.com/2017/04/12/phpcmsq前台注入分析/index.html">
 <meta property="og:site_name" content="Answer">
 <meta property="og:description" content="phpcms_v9.6.0的一个sql注入漏洞,无任何限制，危害不小。还是挺有意思的，于是记录一波。0x1 安全过滤函数safe_replace\phpcms\libs\functions\global.func.php safe_replace($string) &amp;#123;1234567891011121314$string = str_replace(&amp;apos;%20&amp;apos;,&amp;apo">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://yoursite.com/2017/09/23/phpcmsq前台注入分析/14901189695667.jpg">
-<meta property="og:updated_time" content="2017-09-23T14:25:57.000Z">
+<meta property="og:image" content="http://yoursite.com/2017/04/12/phpcmsq前台注入分析/14901189695667.jpg">
+<meta property="og:updated_time" content="2017-09-23T17:28:45.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="phpcms_v9.6.0前台注入分析">
 <meta name="twitter:description" content="phpcms_v9.6.0的一个sql注入漏洞,无任何限制，危害不小。还是挺有意思的，于是记录一波。0x1 安全过滤函数safe_replace\phpcms\libs\functions\global.func.php safe_replace($string) &amp;#123;1234567891011121314$string = str_replace(&amp;apos;%20&amp;apos;,&amp;apo">
-<meta name="twitter:image" content="http://yoursite.com/2017/09/23/phpcmsq前台注入分析/14901189695667.jpg">
+<meta name="twitter:image" content="http://yoursite.com/2017/04/12/phpcmsq前台注入分析/14901189695667.jpg">
 
 
 
@@ -112,7 +112,7 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2017/09/23/phpcmsq前台注入分析/"/>
+  <link rel="canonical" href="http://yoursite.com/2017/04/12/phpcmsq前台注入分析/"/>
 
 
 
@@ -235,7 +235,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/09/23/phpcmsq前台注入分析/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/04/12/phpcmsq前台注入分析/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Answer">
@@ -264,8 +264,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-09-23T22:00:25+08:00">
-                2017-09-23
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-04-12T22:00:25+08:00">
+                2017-04-12
               </time>
             
 
@@ -312,7 +312,7 @@
 <p>所以这里我们需要一个由sys_auth函数加密的a_k字符串。</p>
 <p>找其中一处用到sys_auth函数加密的地方，这里的src最后先get传送给set_cooke，然后set_cookie里面再调用sys_auth来加密src</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">public function swfupload_json() &#123;</div><div class="line">		$arr[&apos;aid&apos;] = intval($_GET[&apos;aid&apos;]);</div><div class="line">		$arr[&apos;src&apos;] = safe_replace(trim($_GET[&apos;src&apos;]));</div><div class="line">		$arr[&apos;filename&apos;] = urlencode(safe_replace($_GET[&apos;filename&apos;]));</div><div class="line">		$json_str = json_encode($arr);</div><div class="line">		$att_arr_exist = param::get_cookie(&apos;att_json&apos;);</div><div class="line">		$att_arr_exist_tmp = explode(&apos;||&apos;, $att_arr_exist);</div><div class="line">		if(is_array($att_arr_exist_tmp) &amp;&amp; in_array($json_str, $att_arr_exist_tmp)) &#123;</div><div class="line">			return true;</div><div class="line">		&#125; else &#123;</div><div class="line">			$json_str = $att_arr_exist ? $att_arr_exist.&apos;||&apos;.$json_str : $json_str;</div><div class="line">			echo $json_str;</div><div class="line">			param::set_cookie(&apos;att_json&apos;,$json_str);</div><div class="line">			return true;</div></pre></td></tr></table></figure>
-<h2 id="0x3-绕过登陆限制"><a href="#0x3-绕过登陆限制" class="headerlink" title="0x3 绕过登陆限制"></a>0x3 绕过登陆限制</h2><p>1.绕过登陆的限制，这里用了sys_auth去解密post提交的userid_flash，如果不为空就认为登陆成功，这里可以伪造userid_flash<br><img src="/2017/09/23/phpcmsq前台注入分析/14901189695667.jpg" alt=""></p>
+<h2 id="0x3-绕过登陆限制"><a href="#0x3-绕过登陆限制" class="headerlink" title="0x3 绕过登陆限制"></a>0x3 绕过登陆限制</h2><p>1.绕过登陆的限制，这里用了sys_auth去解密post提交的userid_flash，如果不为空就认为登陆成功，这里可以伪造userid_flash<br><img src="/2017/04/12/phpcmsq前台注入分析/14901189695667.jpg" alt=""></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$this-&gt;userid = $_SESSION[&apos;userid&apos;] ？$_SESSION[&apos;userid&apos;] : (param::get_cookie(&apos;_userid&apos;) ? param::get_cookie(&apos;_userid&apos;) : sys_auth($_POST[&apos;userid_flash&apos;],&apos;DECODE&apos;));</div><div class="line">这一行就是在获取userid来作为判断是否登陆的依据</div></pre></td></tr></table></figure>
 <p>phpcms/modules/wap/index.php 中可以传入siteid到set_cookie中 从而可以用sys_uth来加密我们想要的userid_flash</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">$this-&gt;db = pc_base::load_model(&apos;content_model&apos;);</div><div class="line">		$this-&gt;siteid = isset($_GET[&apos;siteid&apos;]) &amp;&amp; (intval($_GET[&apos;siteid&apos;]) &gt; 0) ? intval(trim($_GET[&apos;siteid&apos;])) : (param::get_cookie(&apos;siteid&apos;) ? param::get_cookie(&apos;siteid&apos;) : 1);</div><div class="line">		param::set_cookie(&apos;siteid&apos;,$this-&gt;siteid);</div><div class="line">		／／这一行就是传经set_cookie，set_cookie会经过sys_auth加密，</div><div class="line">		所以我们可以控制siteid的出入，生成一个绕过登陆的userid</div><div class="line">		$this-&gt;wap_site = getcache(&apos;wap_site&apos;,&apos;wap&apos;);</div><div class="line">		$this-&gt;types = getcache(&apos;wap_type&apos;,&apos;wap&apos;);</div><div class="line">		$this-&gt;wap = $this-&gt;wap_site[$this-&gt;siteid];</div><div class="line">		define(&apos;WAP_SITEURL&apos;, $this-&gt;wap[&apos;domain&apos;] ? $this-&gt;wap[&apos;domain&apos;].&apos;index.php?&apos; : APP_PATH.&apos;index.php?m=wap&amp;siteid=&apos;.$this-&gt;siteid);</div><div class="line">		if($this-&gt;wap[&apos;status&apos;]!=1) exit(L(&apos;wap_close_status&apos;))</div></pre></td></tr></table></figure>
@@ -355,8 +355,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/09/23/phpcmsv9-6-1任意文件读取漏洞/" rel="next" title="phpcmsv9.6.1任意文件读取漏洞">
-                <i class="fa fa-chevron-left"></i> phpcmsv9.6.1任意文件读取漏洞
+              <a href="/2016/05/26/某些环境下绕过php后缀黑名单上传webshell/" rel="next" title="某些环境下绕过php后缀黑名单上传webshell">
+                <i class="fa fa-chevron-left"></i> 某些环境下绕过php后缀黑名单上传webshell
               </a>
             
           </div>
@@ -364,6 +364,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/04/29/phpcmsv9-6-1任意文件读取漏洞/" rel="prev" title="phpcmsv9.6.1任意文件读取漏洞">
+                phpcmsv9.6.1任意文件读取漏洞 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>

